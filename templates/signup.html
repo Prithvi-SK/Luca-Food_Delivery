@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up</title>
+</head>
+<body>
+    <h1>Sign Up</h1>
+    <form action="{{ url_for('signup') }}" method="POST">
+        <label for="role">Role:</label>
+        <select name="role" required onchange="toggleAdminFields(this.value)">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+        </select><br>
+        
+        <label for="name">Name:</label>
+        <input type="text" name="name" required><br>
+        
+        <label for="password">Password:</label>
+        <input type="password" name="password" required><br>
+        
+        <label for="address">Address:</label>
+        <input type="text" name="address"><br>
+        
+        <label for="phone_number">Phone Number:</label>
+        <input type="text" name="phone_number"><br>
+
+        <!-- Admin-specific fields -->
+        <div id="adminFields" style="display:none;">
+            <h3>Restaurant Information (Admins Only)</h3>
+            <label for="restaurant_name">Restaurant Name:</label>
+            <input type="text" name="restaurant_name"><br>
+
+            <label for="restaurant_location">Location:</label>
+            <input type="text" name="restaurant_location"><br>
+
+            <label for="restaurant_description">Description:</label>
+            <input type="text" name="restaurant_description"><br>
+
+            <label for="restaurant_category">Category:</label>
+            <input type="text" name="restaurant_category"><br>
+        </div>
+
+        <button type="submit">Sign Up</button>
+    </form>
+
+    <script>
+        function toggleAdminFields(role) {
+            document.getElementById("adminFields").style.display = role === 'admin' ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html>

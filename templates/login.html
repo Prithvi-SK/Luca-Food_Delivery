@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <form action="{{ url_for('login') }}" method="POST">
+        <label for="role">Role:</label>
+        <select name="role" required>
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+        </select><br>
+        
+        <label for="name">Name:</label>
+        <input type="text" name="name" required><br>
+        
+        <label for="password">Password:</label>
+        <input type="password" name="password" required><br>
+        
+        <button type="submit">Login</button>
+    </form>
+
+    <p>If you do not have an account, <a href="{{ url_for('signup') }}">sign up here</a>.</p>
+</body>
+</html>

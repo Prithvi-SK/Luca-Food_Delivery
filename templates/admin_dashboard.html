@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+</head>
+<body>
+    <h1>Admin Dashboard for {{ restaurant_name }}</h1>
+
+    <h2>Add a Food Item</h2>
+    <form action="{{ url_for('admin_dashboard') }}" method="POST">
+        <label for="food_item_name">Food Item Name:</label>
+        <input type="text" name="food_item_name" required><br>
+
+        <label for="cuisine">Cuisine:</label>
+        <input type="text" name="cuisine" required><br>
+
+        <label for="price">Price:</label>
+        <input type="number" name="price" step="0.01" required><br>
+
+        <label for="description">Description:</label>
+        <input type="text" name="description"><br>
+
+        <button type="submit">Add Food Item</button>
+    </form>
+
+    <h2>Food Items in {{ restaurant_name }}</h2>
+    <table border="1">
+        <tr>
+            <th>Food Item Name</th>
+            <th>Cuisine</th>
+            <th>Price</th>
+            <th>Description</th>
+            <th>Action</th>
+        </tr>
+        {% for item in food_items %}
+        <tr>
+            <td>{{ item.food_item_name }}</td>
+            <td>{{ item.cuisine }}</td>
+            <td>{{ item.price }}</td>
+            <td>{{ item.description }}</td>
+            <td>
+                <form action="{{ url_for('delete_food', food_id=item.id) }}" method="POST" style="display:inline;">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
