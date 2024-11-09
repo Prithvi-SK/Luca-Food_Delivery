@@ -116,18 +116,57 @@ def login():
             session['user_id'] = user['id']
             session['user_role'] = role
             session['username'] = user['name']
-            session['restaurant_name'] = user['restaurant_name']  # Store restaurant name in session for convenience
+            session['restaurant_name'] = user.get('restaurant_name') if role == 'admin' else None
 
             flash(f"Logged in as {role.capitalize()} successfully!")
             if role == 'admin':
                 return redirect(url_for('admin_dashboard'))
             else:
-                return redirect(url_for('dashboard'))
+                return redirect(url_for('user_dashboard'))
         else:
             flash("Invalid username or password")
             return redirect(url_for('login'))
 
     return render_template('login.html')
+
+@app.route('/user_dashboard')
+def user_dashboard():
+    if 'user_id' not in session or session.get('user_role') != 'user':
+        flash("Access denied. Users only.")
+        return redirect(url_for('login'))
+
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    # Fetch all restaurants from the restaurants table
+    query = "SELECT * FROM restaurants"
+    cursor.execute(query)
+    restaurants = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+
+    return render_template('user_dashboard.html', restaurants=restaurants)
+
+@app.route('/view_restaurant/<string:restaurant_name>')
+def view_restaurant(restaurant_name):
+    if 'user_id' not in session or session.get('user_role') != 'user':
+        flash("Access denied. Users only.")
+        return redirect(url_for('login'))
+
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    # Fetch all food items from the specified restaurant's table
+    query = f"SELECT * FROM `{restaurant_name}`"
+    cursor.execute(query)
+    food_items = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+
+    return render_template('restaurant_menu.html', restaurant_name=restaurant_name, food_items=food_items)
+
 
 @app.route('/admin_dashboard', methods=['GET', 'POST'])
 def admin_dashboard():

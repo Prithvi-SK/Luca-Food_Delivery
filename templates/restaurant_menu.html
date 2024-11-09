@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Menu - {{ restaurant_name }}</title>
+</head>
+<body>
+    <h1>{{ restaurant_name }} - Menu</h1>
+
+    <table border="1">
+        <tr>
+            <th>Food Item Name</th>
+            <th>Cuisine</th>
+            <th>Price</th>
+            <th>Description</th>
+        </tr>
+        {% for item in food_items %}
+        <tr>
+            <td>{{ item.food_item_name }}</td>
+            <td>{{ item.cuisine }}</td>
+            <td>{{ item.price }}</td>
+            <td>{{ item.description }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <a href="{{ url_for('user_dashboard') }}">Back to Dashboard</a>
+</body>
+</html>

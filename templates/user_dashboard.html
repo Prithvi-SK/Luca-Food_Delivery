@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Dashboard</title>
+</head>
+<body>
+    <h1>Welcome, {{ session.get('username') }}</h1>
+    <h2>Available Restaurants</h2>
+
+    <ul>
+        {% for restaurant in restaurants %}
+            <li>
+                <a href="{{ url_for('view_restaurant', restaurant_name=restaurant.restaurant_name) }}">
+                    {{ restaurant.restaurant_name }} - {{ restaurant.restauant_location }}
+                </a>
+                <p>{{ restaurant.restaurant_description }}</p>
+                <p><strong>Cuisine:</strong> {{ restaurant.restaurant_category }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
