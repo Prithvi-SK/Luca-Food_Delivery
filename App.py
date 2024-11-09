@@ -167,6 +167,115 @@ def view_restaurant(restaurant_name):
 
     return render_template('restaurant_menu.html', restaurant_name=restaurant_name, food_items=food_items)
 
+@app.route('/add_to_cart', methods=['POST'])
+def add_to_cart():
+    if 'user_id' not in session or session.get('user_role') != 'user':
+        flash("Access denied. Users only.")
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    user_name = session['username']
+    food_item = request.form['food_item']
+    quantity = int(request.form.get('quantity', 1))
+    price = float(request.form['price'])
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    # Check if cart table exists, if not, create it
+    cursor.execute("SHOW TABLES LIKE 'cart'")
+    result = cursor.fetchone()
+    if not result:
+        create_cart_table = """
+        CREATE TABLE cart (
+            order_id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            user_name VARCHAR(100) NOT NULL,
+            food_item VARCHAR(100) NOT NULL,
+            quantity INT NOT NULL,
+            price FLOAT(7,2) NOT NULL
+        )
+        """
+        cursor.execute(create_cart_table)
+
+    # Check if the food item is already in the cart
+    check_item_query = "SELECT * FROM cart WHERE user_id = %s AND food_item = %s"
+    cursor.execute(check_item_query, (user_id, food_item))
+    item = cursor.fetchone()
+
+    if item:
+        # If item exists, update quantity
+        new_quantity = item[4] + quantity
+        update_query = "UPDATE cart SET quantity = %s WHERE user_id = %s AND food_item = %s"
+        cursor.execute(update_query, (new_quantity, user_id, food_item))
+    else:
+        # Insert new item into the cart
+        insert_query = "INSERT INTO cart (user_id, user_name, food_item, quantity, price) VALUES (%s, %s, %s, %s, %s)"
+        cursor.execute(insert_query, (user_id, user_name, food_item, quantity, price))
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    flash(f"{food_item} added to cart.")
+    return redirect(url_for('view_restaurant', restaurant_name=request.form['restaurant_name']))
+
+@app.route('/remove_from_cart', methods=['POST'])
+def remove_from_cart():
+    if 'user_id' not in session or session.get('user_role') != 'user':
+        flash("Access denied. Users only.")
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    food_item = request.form['food_item']
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    # Remove the item from the cart
+    delete_query = "DELETE FROM cart WHERE user_id = %s AND food_item = %s"
+    cursor.execute(delete_query, (user_id, food_item))
+
+    connection.commit()
+
+    # Check if the cart is empty after removing the item
+    check_cart_empty_query = "SELECT COUNT(*) FROM cart WHERE user_id = %s"
+    cursor.execute(check_cart_empty_query, (user_id,))
+    cart_empty = cursor.fetchone()[0] == 0
+
+    # If cart is empty, drop the cart table
+    if cart_empty:
+        cursor.execute("DROP TABLE IF EXISTS cart")
+
+    cursor.close()
+    connection.close()
+
+    flash(f"{food_item} removed from cart.")
+    return redirect(url_for('view_cart'))
+
+@app.route('/view_cart')
+def view_cart():
+    if 'user_id' not in session or session.get('user_role') != 'user':
+        flash("Access denied. Users only.")
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    # Fetch items from the cart for the logged-in user
+    cursor.execute("SELECT * FROM cart WHERE user_id = %s", (user_id,))
+    cart_items = cursor.fetchall()
+
+    # Calculate total price
+    total_price = sum(item['quantity'] * item['price'] for item in cart_items)
+
+    cursor.close()
+    connection.close()
+
+    return render_template('cart.html', cart_items=cart_items, total_price=total_price)
+
 
 @app.route('/admin_dashboard', methods=['GET', 'POST'])
 def admin_dashboard():

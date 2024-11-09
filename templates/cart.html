@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shopping Cart</title>
+</head>
+<body>
+    <h1>Your Cart</h1>
+
+    {% if cart_items %}
+        <table border="1">
+            <tr>
+                <th>Food Item</th>
+                <th>Quantity</th>
+                <th>Price per Unit</th>
+                <th>Total Price</th>
+            </tr>
+            {% for item in cart_items %}
+            <tr>
+                <td>{{ item.food_item }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.price }}</td>
+                <td>{{ item.quantity * item.price }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <h2>Total: {{ total_price }}</h2>
+    {% else %}
+        <p>Your cart is empty.</p>
+    {% endif %}
+
+    <a href="{{ url_for('user_dashboard') }}">Back to Dashboard</a>
+</body>
+</html>

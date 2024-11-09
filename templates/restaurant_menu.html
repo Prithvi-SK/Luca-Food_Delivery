@@ -13,6 +13,8 @@
             <th>Cuisine</th>
             <th>Price</th>
             <th>Description</th>
+            <th>Quantity</th>
+            <th>Action</th>
         </tr>
         {% for item in food_items %}
         <tr>
@@ -20,10 +22,24 @@
             <td>{{ item.cuisine }}</td>
             <td>{{ item.price }}</td>
             <td>{{ item.description }}</td>
+            <td>
+                <form action="{{ url_for('add_to_cart') }}" method="POST" style="display:inline;">
+                    <input type="hidden" name="restaurant_name" value="{{ restaurant_name }}">
+                    <input type="hidden" name="food_item" value="{{ item.food_item_name }}">
+                    <input type="hidden" name="price" value="{{ item.price }}">
+                    <input type="number" name="quantity" value="1" min="1">
+                    <button type="submit">Add to Cart</button>
+                </form>
+                <form action="{{ url_for('remove_from_cart') }}" method="POST" style="display:inline;">
+                    <input type="hidden" name="food_item" value="{{ item.food_item_name }}">
+                    <button type="submit">Remove from Cart</button>
+                </form>
+            </td>
         </tr>
         {% endfor %}
     </table>
 
+    <a href="{{ url_for('view_cart') }}">View Cart</a>
     <a href="{{ url_for('user_dashboard') }}">Back to Dashboard</a>
 </body>
 </html>
